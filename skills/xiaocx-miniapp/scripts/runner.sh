@@ -4,9 +4,10 @@
 # 自动定位仓库路径与可用解释器（优先项目内 .venv）
 set -e
 
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+BUNDLED_REPO="$(CDPATH= cd -- "$SCRIPT_DIR/../../.." && pwd)"
 REPO=""
-for base in "${XIAOCX_HOME:-}" "$HOME/chatbot-skill-miniapps" \
-            "$HOME/Documents/workspace/chatbot-skill-miniapps"; do
+for base in "${XIAOCX_HOME:-}" "$BUNDLED_REPO" "$HOME/chatbot-skill-miniapps"; do
   if [ -n "$base" ] && [ -f "$base/tools/run_miniapp.py" ]; then
     REPO="$base"
     break

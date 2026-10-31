@@ -19,7 +19,13 @@ import sys
 
 TIMEOUT_SECONDS = 60
 SAFE_COMMAND_NAME = re.compile(r'^[\w·][\w·\-.]*$', re.UNICODE)
-IMAGE_PATTERN = re.compile(r'!\[.*?\]\((https?://\S+)\)')
+IMAGE_PATTERN = re.compile(r'!\[.*?\]\(((?:https?://|/)[^)]+)\)')
+
+
+def split_miniapp_output(output: str) -> tuple[str, list[str]]:
+    """Separate Markdown image sources from the text returned by a mini-app."""
+    image_sources = [match.group(1).strip() for match in IMAGE_PATTERN.finditer(output)]
+    return IMAGE_PATTERN.sub("", output).strip(), image_sources
 
 
 def main():
@@ -67,8 +73,7 @@ def main():
         print(json.dumps({"ok": False, "command": command, "error": f"执行失败: {err or out}"}, ensure_ascii=False))
         return 2
 
-    images = [m.group(1) for m in IMAGE_PATTERN.finditer(out)]
-    text = IMAGE_PATTERN.sub("", out).strip()
+    text, images = split_miniapp_output(out)
 
     print(json.dumps({"ok": True, "command": command, "text": text, "images": images}, ensure_ascii=False))
     return 0
